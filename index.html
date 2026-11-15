@@ -158,11 +158,6 @@ function renderMes(){
       </div>`).join('')}</div>
   </div>
   <div class="card">
-    <h2>Evolución del mes <small>puntos acumulados por sorteo</small></h2>
-    ${legend()}
-    <div class="chart" id="chMes"></div>
-  </div>
-  <div class="card">
     <h2>Apuntar sorteo</h2>
     <form class="form" id="fAdd">
       <label>Día<input type="number" id="fDay" min="1" max="31" required value="${nextDay(d)}"></label>
@@ -178,9 +173,6 @@ function renderMes(){
   </div>
   ${pend.length?`<div class="card"><h2>Cenas pendientes <small>${pend.length}</small></h2><ul class="list">${pend.map(m=>{const p=payer(m);return `<li><span>${label(m)} ${m.y}</span><span>${whoTxt(p)} <span class="meta">${m.tot.join(' · ')}</span></span></li>`}).join('')}</ul></div>`:''}
   `;
-  // chart
-  const series=[0,1,2].map(i=>{let s=0;return d.map(x=>s+=(+x.p[i]||0))});
-  lineChart('#chMes',d.map(x=>`${DIA[x.wd]||''} ${x.d}`),series);
   // stepper
   const vals=[0,0,0];
   document.querySelectorAll('.stepper').forEach(st=>st.addEventListener('click',e=>{const s=+e.target.dataset.s;if(!s)return;const i=+st.dataset.i;vals[i]=Math.max(0,Math.min(6,vals[i]+s));$('#st'+i).textContent=vals[i]}));
