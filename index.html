@@ -392,6 +392,6 @@ let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(renderAll,1
 show('inicio');if(location.hash&&location.hash!=='#inicio')history.replaceState(null,'',location.pathname+location.search);
 })();
 </script>
-<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});</script>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});let _r=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!_r){_r=1;location.reload()}});</script>
 </body>
 </html>
