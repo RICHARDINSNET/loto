@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794773739">
+<meta name="loto-version" content="1794773803">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -190,7 +190,7 @@ function payer(m){const l=lows(m.tot);return l.length===1?l[0]:(l.length===N?'al
 const SH=[0,1/3,2/3];
 function shares(m){const o=[0,1,2].sort((a,b)=>m.tot[b]-m.tot[a]);const r=[0,0,0];let k=0;while(k<3){let j=k;while(j+1<3&&m.tot[o[j+1]]===m.tot[o[k]])j++;let sum=0;for(let q=k;q<=j;q++)sum+=SH[q];for(let q=k;q<=j;q++)r[o[q]]=sum/(j-k+1);k=j+1}return r}
 function frac(v){const t=[[0,'0'],[1/6,'1/6'],[1/3,'1/3'],[1/2,'1/2'],[2/3,'2/3'],[1,'1']];let b=t[0];t.forEach(x=>{if(Math.abs(x[0]-v)<Math.abs(b[0]-v))b=x});return b[1]}
-function payTxt(m,sep='<br>'){const sh=shares(m);return [0,1,2].filter(i=>sh[i]>1e-9).sort((a,b)=>sh[b]-sh[a]).map(i=>`<span style="white-space:nowrap">${dot(i)} <b>${P[i]}</b> ${frac(sh[i])}</span>`).join(sep)}
+function payTxt(m,sep='<br>',noDot){const sh=shares(m);return [0,1,2].filter(i=>sh[i]>1e-9).sort((a,b)=>sh[b]-sh[a]).map(i=>`<span style="white-space:nowrap">${noDot?'':dot(i)+' '}<b>${P[i]}</b> ${frac(sh[i])}</span>`).join(sep)}
 const f1=v=>(Math.round(v*10)/10).toLocaleString('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});
 
 const closed=()=>meses.filter(m=>!m.enCurso);
@@ -329,11 +329,11 @@ function renderHist(){
   $("#v-hist").innerHTML=`
   <div class="card">
     <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h2 style="margin:0">Temporada ${histYear}</h2>
+      <h2 style="margin:0">Año ${histYear}</h2>
     </div>
     <div class="scroll"><table>
-      <thead><tr><th>Mes</th>${P.map((p,i)=>`<th>${dot(i)} ${D.corto[i]}</th>`).join('')}<th>Pagan</th></tr></thead>
-      <tbody>${ms.map(m=>{const lo=lows(m.tot),hi=highs(m.tot),p=payer(m);return `<tr><td>${label(m)}${m.enCurso?' <span class="meta" style="color:var(--muted);font-size:11px">en curso</span>':''}</td>${m.tot.map((v,i)=>`<td class="${lo.length<N&&lo.includes(i)?'lo':hi.length<N&&hi.includes(i)?'hi':''}">${v}</td>`).join('')}<td style="font-size:12px;text-align:right;white-space:nowrap">${m.enCurso?'–':payTxt(m)}</td></tr>`}).join('')}
+      <thead><tr><th>Mes</th>${P.map((p,i)=>`<th>${D.corto[i]}</th>`).join('')}<th>Pagan</th></tr></thead>
+      <tbody>${ms.map(m=>{const lo=lows(m.tot),hi=highs(m.tot),p=payer(m);return `<tr><td>${label(m)}${m.enCurso?' <span class="meta" style="color:var(--muted);font-size:11px">en curso</span>':''}</td>${m.tot.map((v,i)=>`<td class="${lo.length<N&&lo.includes(i)?'lo':hi.length<N&&hi.includes(i)?'hi':''}">${v}</td>`).join('')}<td style="font-size:12px;text-align:right;white-space:nowrap">${m.enCurso?'–':payTxt(m,'<br>',1)}</td></tr>`}).join('')}
       <tr><td><b>Total</b></td>${totY.map(v=>`<td><b>${v}</b></td>`).join('')}<td></td></tr></tbody>
     </table></div>
     <div class="note">En verde el 1º (no paga), en rojo el último (paga 2/3). El 2º paga 1/3.</div>
