@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794772064">
+<meta name="loto-version" content="1794772394">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -53,7 +53,7 @@ body.sub .brand span{display:none}
 .sq .t{font-size:18px;font-weight:700}
 .sq .d{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.35}
 .sq.k5 svg{color:#6250d6}
-.sq.k6 svg{color:#e34948}
+.sq.k6 svg{color:#e34948;width:84px}
 .nb.rein{background:radial-gradient(circle at 35% 30%,#fff3c4,#f5c518 70%,#c99a00);border-color:#c99a00}
 .sq.wide{grid-column:1/-1;aspect-ratio:auto;flex-direction:row;justify-content:center;gap:16px;padding:18px}
 .sq.wide>div{width:auto;text-align:left}
@@ -499,7 +499,7 @@ function renderInicio(){
     mes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
     clasif:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>',
     hist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
-    semana:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="8" r="3.2"/><circle cx="17" cy="8" r="3.2"/><circle cx="7" cy="17" r="3.2"/><circle cx="17" cy="17" r="3.2"/></svg>',
+    semana:'<svg viewBox="0 0 32 22"><defs><radialGradient id="bg6" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#eeede8"/><stop offset="1" stop-color="#b9b6ac"/></radialGradient></defs>'+[[5.5,6],[16,6],[26.5,6],[5.5,16.5],[16,16.5],[26.5,16.5]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="url(#bg6)" stroke="#8d897e" stroke-width=".5"/><circle cx="${x}" cy="${y}" r="2.6" fill="none" stroke="#e34948" stroke-width=".7"/><ellipse cx="${x-1.7}" cy="${y-2}" rx="1.3" ry=".8" fill="#fff" opacity=".9"/>`).join('')+'</svg>',
     boleto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
     cenas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5a2 2 0 0 0 2 2M9 3v5M17 21V3c-2 1-3 4-3 7h3"/></svg>'};
   $('#v-inicio').innerHTML=`<div class="grid">
@@ -507,7 +507,7 @@ function renderInicio(){
     <button class="sq k2" data-go="clasif">${ic.clasif}<div><div class="t">Clasificación</div><div class="d">Menos cenas pagadas: ${lider.map(i=>P[i]).join(' y ')}</div></div></button>
     <button class="sq k3" data-go="hist">${ic.hist}<div><div class="t">Histórico</div><div class="d">Desde ${MES[meses[0].m-1].toLowerCase()} ${meses[0].y}, año a año</div></div></button>
     <button class="sq k4" data-go="cenas">${ic.cenas}<div><div class="t">Cenas</div><div class="d">${pend.length?pend.length+' pendientes':'Ninguna pendiente'}</div></div></button>
-    <button class="sq k6" data-go="semana">${ic.semana}<div><div class="t">Semana</div><div class="d">${(()=>{const b=curBol();return b&&b.apuestas.length?`${b.apuestas.length} apuesta${b.apuestas.length>1?'s':''}${b.reintegro!=null?' · R '+b.reintegro:''}`:'Sin números aún'})()}</div></div></button>
+    <button class="sq k6" data-go="semana">${ic.semana}<div><div class="t">Números de la semana</div><div class="d">${(()=>{const b=curBol();return b&&b.apuestas.length?`${b.apuestas.length} apuesta${b.apuestas.length>1?'s':''}${b.reintegro!=null?' · R '+b.reintegro:''}`:'Sin números aún'})()}</div></div></button>
     <button class="sq k5" data-go="boleto">${ic.boleto}<div><div class="t">Boleto</div><div class="d">Hacer foto</div></div></button>
   </div>`;
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{location.hash=b.dataset.go});
