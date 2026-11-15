@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794778606">
+<meta name="loto-version" content="1794778771">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -140,6 +140,8 @@ body.sub .brand span{display:none}
 .nb.bad{border-color:var(--bad);color:var(--bad)}
 .apu{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--grid)}
 .apu:last-child{border-bottom:0}
+.apn{font-weight:800;font-size:15px;margin-top:10px}
+.apu.ap2{padding-top:4px}
 .apu .lbl{width:16px;font-size:12px;color:var(--muted);font-weight:700}
 .apu .x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer}
 .prev{max-width:100%;border-radius:10px;margin-top:10px;display:block}
@@ -463,6 +465,7 @@ let selDay=null,resEdit=false;
 function weekTxt(k){const [y,m,d]=k.split('-').map(Number);const a=new Date(y,m-1,d),b=new Date(y,m-1,d+6);return `${a.getDate()} ${MES[a.getMonth()].slice(0,3).toLowerCase()} – ${b.getDate()} ${MES[b.getMonth()].slice(0,3).toLowerCase()}`}
 let draft=null, ocrState='', editMode=false, semMsg='';
 const ball=(n,cls='')=>`<span class="nb ${cls}" style="display:inline-flex;align-items:center;justify-content:center">${String(n).padStart(2,'0')}</span>`;
+const apName=k=>k<P.length?P[k]:`Apuesta ${k+1}`;
 function curBol(){const b=getBol();return b&&b.semana===weekKey()?b:null}
 function renderSemana(){
   const wk=weekKey(), cb=curBol();
@@ -486,11 +489,11 @@ function renderSemana(){
     </div>
     ${semMsg?`<p class="note" style="margin:0 0 10px">${semMsg}</p>`:''}
     ${editMode?`
-      ${draft.map((a,k)=>`<div class="apu"><span class="lbl">${k+1}</span><div class="balls">${a.map((n,j)=>`<input class="nb ${n===''||(n>=1&&n<=49)?'':'bad'}" inputmode="numeric" maxlength="2" value="${n===''?'':String(n).padStart(2,'0')}" data-a="${k}" data-j="${j}">`).join('')}</div><button class="x" data-rm="${k}" aria-label="Quitar">×</button></div>`).join('')}
+      ${draft.map((a,k)=>`<div class="apn">${apName(k)}</div><div class="apu ap2"><div class="balls">${a.map((n,j)=>`<input class="nb ${n===''||(n>=1&&n<=49)?'':'bad'}" inputmode="numeric" maxlength="2" value="${n===''?'':String(n).padStart(2,'0')}" data-a="${k}" data-j="${j}">`).join('')}</div><button class="x" data-rm="${k}" aria-label="Quitar">×</button></div>`).join('')}
       <div class="apu"><span class="lbl">R</span><input class="nb rein" id="reIn" inputmode="numeric" maxlength="1" value="${draft.rein===''?'':draft.rein}"><span class="note" style="margin:0">Reintegro (0 a 9)</span></div>
       <div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="addA">+ Añadir apuesta</button><button class="btn" id="saveA">Guardar</button><button class="btn ghost" id="cancelA">Cancelar</button></div>`
     :cb&&cb.apuestas.length?`
-      ${cb.apuestas.map((a,k)=>{const h=hitSet?a.filter(n=>hitSet.has(n)).length:0,hc=hitSet&&compl!=null&&a.includes(compl);return `<div class="apu"><span class="lbl">${k+1}</span><div class="balls">${a.map(n=>ball(n,hitSet&&hitSet.has(n)?'hit':(hc&&n===compl?'hitc':''))).join('')}</div>${hitSet?`<span class="acier ${h>=3?'good':''}">${h}${hc?'+C':''}</span>`:''}</div>`}).join('')}
+      ${cb.apuestas.map((a,k)=>{const h=hitSet?a.filter(n=>hitSet.has(n)).length:0,hc=hitSet&&compl!=null&&a.includes(compl);return `<div class="apn">${apName(k)}</div><div class="apu ap2"><div class="balls">${a.map(n=>ball(n,hitSet&&hitSet.has(n)?'hit':(hc&&n===compl?'hitc':''))).join('')}</div>${hitSet?`<span class="acier ${h>=3?'good':''}">${h}${hc?'+C':''}</span>`:''}</div>`}).join('')}
       <div class="apu"><span class="lbl">R</span>${cb.reintegro!=null&&cb.reintegro!==''?ball(cb.reintegro,'rein'+(res&&res.r!=null&&res.r===cb.reintegro?' hit':'')).replace(/>0(\d)</,'>$1<'):'<span class="note" style="margin:0">Sin reintegro</span>'}<span class="note" style="margin:0">${res&&res.r!=null&&cb.reintegro!=null?(res.r===cb.reintegro?'¡Reintegro acertado!':'Reintegro'):'Reintegro'}</span></div>
       ${hitSet?'<p class="note" style="margin:6px 0 0">En verde los números acertados en este sorteo. La cifra de la derecha son los aciertos de cada apuesta.</p>':''}
       <div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="editA">Corregir números</button><button class="btn ghost" data-go2="boleto">Hacer otra foto</button></div>
