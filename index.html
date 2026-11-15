@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794773307">
+<meta name="loto-version" content="1794773354">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -206,7 +206,6 @@ function renderMes(){
     <div class="scroll"><table><thead><tr><th>Día</th>${P.map((p,i)=>`<th>${dot(i)} ${D.corto[i]}</th>`).join('')}<th></th></tr></thead>
     <tbody>${d.slice().reverse().map(x=>{const mx=Math.max(...x.p);return `<tr><td>${DIA[x.wd]||''} ${x.d} ${x.mine?'<span class="mine">nuevo</span>':''}</td>${x.p.map(v=>`<td class="${v===mx&&mx>0?'hi':''}">${v}</td>`).join('')}<td>${x.mine?`<button class="btn ghost" data-del="${x.id}" style="padding:4px 8px;font-size:12px">Quitar</button>`:''}</td></tr>`}).join('')}</tbody></table></div>
   </div>
-  ${pend.length?`<div class="card"><h2>Cenas pendientes <small>${pend.length}</small></h2><ul class="list">${pend.map(m=>{const p=payer(m);return `<li><span>${label(m)} ${m.y}</span><span style="text-align:right">${payTxt(m)}<br><span class="meta">${m.tot.join(' · ')}</span></span></li>`}).join('')}</ul></div>`:''}
   `;
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{local.draws=(local.draws||[]).filter(x=>x.id!=b.dataset.del);saveLocal();renderAll()});
 }
