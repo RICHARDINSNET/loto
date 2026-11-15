@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794777487">
+<meta name="loto-version" content="1794777878">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -79,6 +79,20 @@ body.sub .brand span{display:none}
 .dchip{display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-radius:12px;background:linear-gradient(180deg,#fff,#efede7);border:1px solid var(--line);box-shadow:0 3px 0 #d8d5cb}
 .dchip span{font-size:12px;color:var(--text2);text-transform:uppercase;font-weight:700;letter-spacing:.04em}
 .dchip b{font-size:26px;line-height:1.1}
+.dchip{position:relative;cursor:pointer;font:inherit;color:var(--text)}
+.dchip.on{background:linear-gradient(180deg,#2f86e6,#1d5fbf);border-color:#1a56ad;box-shadow:0 3px 0 #123f80;color:#fff}
+.dchip.on span{color:#dbe9ff}
+.dok{position:absolute;top:4px;right:6px;font-style:normal;font-size:12px;color:#0b7a3b;font-weight:800}
+.dchip.on .dok{color:#b8f5c9}
+.respanel{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;background:var(--bg)}
+.rtitle{font-weight:700;font-size:15px}
+.rmeta{font-size:14px;color:var(--text2)}
+.linkbtn{border:0;background:none;color:var(--accent);font:inherit;font-size:13px;padding:6px 0 0;cursor:pointer}
+.apu span.nb.win{box-shadow:0 3px 4px rgba(0,0,0,.28),0 0 0 2px #1d5fbf}
+.apu span.nb.hit,.balls span.nb.hit{background:radial-gradient(circle at 36% 30%,#eafff0 0,#9ff0b8 30%,#3fc26a 62%,#1f8f45 88%,#146b31 100%);color:#062d14}
+.balls span.nb.hitc{box-shadow:0 3px 4px rgba(0,0,0,.28),0 0 0 2px #3fc26a}
+.acier{margin-left:auto;min-width:30px;text-align:center;font-weight:800;font-size:15px;color:var(--text2)}
+.acier.good{color:#0b7a3b}
 .row6{display:flex;gap:6px;justify-content:center;width:100%}
 .b6{position:relative;flex:none;width:46px;height:46px;border-radius:50%;
  background:radial-gradient(circle at 33% 26%,#ffffff 0,#fdfcf8 14%,#efece3 38%,#d6d1c3 62%,#a9a293 84%,#7d7667 100%);
@@ -95,14 +109,14 @@ body.sub .brand span{display:none}
 .sq.wide>div{width:auto;text-align:left}
 .balls{display:flex;flex-wrap:wrap;gap:5px}
 .nb{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle at 35% 30%,#fff,#ecebe6 70%,#cfcdc5);color:#111;font-weight:800;font-size:16px;text-align:center;padding:0}
-.balls span.nb,.apu span.nb{position:relative;border:0;background:radial-gradient(circle at 36% 30%,#fff 0,#f7f6f2 30%,#d8d6cf 62%,#a9a69c 85%,#8a867c 100%);box-shadow:0 3px 4px rgba(0,0,0,.28);font-family:'Arial Black',Arial,sans-serif;font-weight:900;color:#141414;width:44px;height:44px;font-size:15px;letter-spacing:-.5px}
+.balls span.nb,.apu span.nb{position:relative;border:0;background:radial-gradient(circle at 36% 30%,#fff 0,#f7f6f2 30%,#d8d6cf 62%,#a9a69c 85%,#8a867c 100%);box-shadow:0 3px 4px rgba(0,0,0,.28);font-family:'Arial Black',Arial,sans-serif;font-weight:900;color:#141414;width:40px;height:40px;font-size:14px;letter-spacing:-.5px}
 .balls span.nb::before,.apu span.nb::before{content:'';position:absolute;inset:4px;border:1px solid rgba(20,20,20,.6);border-radius:50%}
 .balls span.nb::after,.apu span.nb::after{content:'';position:absolute;left:7px;top:4px;width:12px;height:7px;border-radius:50%;background:radial-gradient(#fff,rgba(255,255,255,0));transform:rotate(-30deg)}
 .apu span.nb.rein{background:radial-gradient(circle at 36% 30%,#fffbe0 0,#ffe680 30%,#f5c518 62%,#c99a00 88%,#9c7600 100%)}
 .nb.bad{border-color:var(--bad);color:var(--bad)}
 .apu{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--grid)}
 .apu:last-child{border-bottom:0}
-.apu .lbl{width:26px;font-size:12px;color:var(--muted);font-weight:700}
+.apu .lbl{width:16px;font-size:12px;color:var(--muted);font-weight:700}
 .apu .x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer}
 .prev{max-width:100%;border-radius:10px;margin-top:10px;display:block}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
@@ -419,31 +433,61 @@ const BKEY='loto.boleto.v1';
 function getBol(){try{return JSON.parse(localStorage.getItem(BKEY)||'null')}catch(e){return null}}
 function setBol(b){try{localStorage.setItem(BKEY,JSON.stringify(b))}catch(e){}}
 function weekKey(d=new Date()){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());const dw=(x.getDay()+6)%7;x.setDate(x.getDate()-dw);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
-function drawDates(k){const [y,m,d]=k.split('-').map(Number);return [[0,'Lun'],[3,'Jue'],[5,'Sáb']].map(([o,n])=>{const x=new Date(y,m-1,d+o);return `<div class="dchip"><span>${n}</span><b>${x.getDate()}</b><span>${MES[x.getMonth()].slice(0,3).toLowerCase()}</span></div>`}).join('')}
+const iso=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+function drawDays(k){const [y,m,d]=k.split('-').map(Number);return [[0,'Lun'],[3,'Jue'],[5,'Sáb']].map(([o,n])=>{const x=new Date(y,m-1,d+o);return {k:iso(x),n,x}})}
+function drawDates(k){return drawDays(k).map(o=>{const r=getRes()[o.k];return `<button class="dchip ${o.k===selDay?'on':''}" data-day="${o.k}"><span>${o.n}</span><b>${o.x.getDate()}</b><span>${MES[o.x.getMonth()].slice(0,3).toLowerCase()}</span>${r?'<i class="dok">✓</i>':''}</button>`}).join('')}
+const RKEY='loto.res.v1';
+function getRes(){try{return JSON.parse(localStorage.getItem(RKEY)||'{}')}catch(e){return {}}}
+function setRes(o){try{localStorage.setItem(RKEY,JSON.stringify(o))}catch(e){}}
+let selDay=null,resEdit=false;
 function weekTxt(k){const [y,m,d]=k.split('-').map(Number);const a=new Date(y,m-1,d),b=new Date(y,m-1,d+6);return `${a.getDate()} ${MES[a.getMonth()].slice(0,3).toLowerCase()} – ${b.getDate()} ${MES[b.getMonth()].slice(0,3).toLowerCase()}`}
 let draft=null, ocrState='', editMode=false, semMsg='';
 const ball=(n,cls='')=>`<span class="nb ${cls}" style="display:inline-flex;align-items:center;justify-content:center">${String(n).padStart(2,'0')}</span>`;
 function curBol(){const b=getBol();return b&&b.semana===weekKey()?b:null}
 function renderSemana(){
   const wk=weekKey(), cb=curBol();
+  const days=drawDays(wk);if(!selDay||!days.some(o=>o.k===selDay)){const t=iso(new Date());const past=days.filter(o=>o.k<=t);selDay=(past.length?past[past.length-1]:days[0]).k}
+  const RS=getRes(), res=RS[selDay], selO=days.find(o=>o.k===selDay);
+  const selTxt=`${({Lun:'Lunes',Jue:'Jueves','Sáb':'Sábado'})[selO.n]} ${selO.x.getDate()} de ${MES[selO.x.getMonth()].toLowerCase()}`;
+  const hitSet=res?new Set(res.n):null, compl=res?res.c:null;
   if(editMode&&!draft){draft=cb?cb.apuestas.map(a=>a.slice()):[['','','','','','']];while(draft.some(a=>a.length<6))draft.forEach(a=>{while(a.length<6)a.push('')});draft.rein=cb&&cb.reintegro!=null?cb.reintegro:''}
   $('#v-semana').innerHTML=`
   <div class="card">
     <div class="dchips">${drawDates(wk)}</div>
+    <div class="respanel">
+      <div class="rtitle">Resultado · ${selTxt}</div>
+      ${resEdit?`<div class="balls" style="margin:8px 0">${[0,1,2,3,4,5].map(j=>`<input class="nb" inputmode="numeric" maxlength="2" data-r="${j}" value="${res&&res.n[j]!=null?String(res.n[j]).padStart(2,'0'):''}">`).join('')}</div>
+        <div class="apu"><span class="lbl">C</span><input class="nb" id="rC" inputmode="numeric" maxlength="2" value="${res&&res.c!=null?res.c:''}"><span class="lbl" style="margin-left:10px">R</span><input class="nb rein" id="rR" inputmode="numeric" maxlength="1" value="${res&&res.r!=null?res.r:''}"></div>
+        <div class="btnrow" style="margin-top:8px"><button class="btn" id="rSave">Guardar resultado</button><button class="btn ghost" id="rCancel">Cancelar</button></div>`
+      :res?`<div class="balls" style="margin:8px 0">${res.n.map(n=>ball(n,'win')).join('')}</div>
+        <div class="rmeta">${res.c!=null?`Complementario <b>${String(res.c).padStart(2,'0')}</b>`:''}${res.r!=null?` &nbsp;·&nbsp; Reintegro <b>${res.r}</b>`:''}</div>
+        <button class="linkbtn" id="rEdit">Corregir resultado</button>`
+      :`<p class="note" style="margin:6px 0 8px">Aún no está el resultado de este sorteo.</p><button class="btn ghost" id="rEdit">Apuntar resultado</button>`}
+    </div>
     ${semMsg?`<p class="note" style="margin:0 0 10px">${semMsg}</p>`:''}
     ${editMode?`
       ${draft.map((a,k)=>`<div class="apu"><span class="lbl">${k+1}</span><div class="balls">${a.map((n,j)=>`<input class="nb ${n===''||(n>=1&&n<=49)?'':'bad'}" inputmode="numeric" maxlength="2" value="${n===''?'':String(n).padStart(2,'0')}" data-a="${k}" data-j="${j}">`).join('')}</div><button class="x" data-rm="${k}" aria-label="Quitar">×</button></div>`).join('')}
       <div class="apu"><span class="lbl">R</span><input class="nb rein" id="reIn" inputmode="numeric" maxlength="1" value="${draft.rein===''?'':draft.rein}"><span class="note" style="margin:0">Reintegro (0 a 9)</span></div>
       <div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="addA">+ Añadir apuesta</button><button class="btn" id="saveA">Guardar</button><button class="btn ghost" id="cancelA">Cancelar</button></div>`
     :cb&&cb.apuestas.length?`
-      ${cb.apuestas.map((a,k)=>`<div class="apu"><span class="lbl">${k+1}</span><div class="balls">${a.map(n=>ball(n)).join('')}</div></div>`).join('')}
-      <div class="apu"><span class="lbl">R</span>${cb.reintegro!=null&&cb.reintegro!==''?ball(cb.reintegro,'rein').replace(/>0(\d)</,'>$1<'):'<span class="note" style="margin:0">Sin reintegro</span>'}<span class="note" style="margin:0">Reintegro</span></div>
+      ${cb.apuestas.map((a,k)=>{const h=hitSet?a.filter(n=>hitSet.has(n)).length:0,hc=hitSet&&compl!=null&&a.includes(compl);return `<div class="apu"><span class="lbl">${k+1}</span><div class="balls">${a.map(n=>ball(n,hitSet&&hitSet.has(n)?'hit':(hc&&n===compl?'hitc':''))).join('')}</div>${hitSet?`<span class="acier ${h>=3?'good':''}">${h}${hc?'+C':''}</span>`:''}</div>`}).join('')}
+      <div class="apu"><span class="lbl">R</span>${cb.reintegro!=null&&cb.reintegro!==''?ball(cb.reintegro,'rein'+(res&&res.r!=null&&res.r===cb.reintegro?' hit':'')).replace(/>0(\d)</,'>$1<'):'<span class="note" style="margin:0">Sin reintegro</span>'}<span class="note" style="margin:0">${res&&res.r!=null&&cb.reintegro!=null?(res.r===cb.reintegro?'¡Reintegro acertado!':'Reintegro'):'Reintegro'}</span></div>
+      ${hitSet?'<p class="note" style="margin:6px 0 0">En verde los números acertados en este sorteo. La cifra de la derecha son los aciertos de cada apuesta.</p>':''}
       <div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="editA">Corregir números</button><button class="btn ghost" data-go2="boleto">Hacer otra foto</button></div>
       ${cb.foto?`<img class="prev" src="${cb.foto}" alt="Foto del boleto">`:''}`
     :`<p class="note" style="margin:0 0 10px">Aún no hay números para esta semana.</p><div class="btnrow"><button class="btn" data-go2="boleto">Hacer foto del boleto</button><button class="btn ghost" id="editA">Apuntarlos a mano</button></div>`}
   </div>`;
   document.querySelectorAll('#v-semana [data-go2]').forEach(x=>x.onclick=()=>{location.hash=x.dataset.go2});
   const ed=$('#editA');if(ed)ed.onclick=()=>{editMode=true;draft=null;semMsg='';renderSemana()};
+  document.querySelectorAll('#v-semana [data-day]').forEach(x=>x.onclick=()=>{selDay=x.dataset.day;resEdit=false;renderSemana()});
+  const re=$('#rEdit');if(re)re.onclick=()=>{resEdit=true;renderSemana()};
+  const rc=$('#rCancel');if(rc)rc.onclick=()=>{resEdit=false;renderSemana()};
+  const rs=$('#rSave');if(rs)rs.onclick=()=>{
+    const n=[...document.querySelectorAll('#v-semana [data-r]')].map(i=>parseInt(i.value,10)).filter(v=>v>=1&&v<=49);
+    if(n.length!==6||new Set(n).size!==6){semMsg='El resultado tiene que tener 6 números distintos del 1 al 49.';renderSemana();return}
+    const c=parseInt($('#rC').value,10),r=parseInt($('#rR').value,10);
+    const all=getRes();all[selDay]={n:n.sort((a,b)=>a-b),c:c>=1&&c<=49?c:null,r:r>=0&&r<=9?r:null};setRes(all);resEdit=false;semMsg='';renderSemana();
+  };
   if(!editMode)return;
   document.querySelectorAll('#v-semana input.nb[data-a]').forEach(inp=>inp.oninput=()=>{const v=parseInt(inp.value,10);draft[+inp.dataset.a][+inp.dataset.j]=isNaN(v)?'':v;inp.classList.toggle('bad',!(isNaN(v)||(v>=1&&v<=49)))});
   $('#reIn').oninput=e=>{const v=parseInt(e.target.value,10);draft.rein=isNaN(v)?'':v};
