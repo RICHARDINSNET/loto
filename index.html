@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794773442">
+<meta name="loto-version" content="1794773508">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -39,6 +39,12 @@ body:not(.sub) header{display:none}
 body:not(.sub) main{padding-top:20px}
 body.sub .brand span{display:none}
 .bigsel{font-size:20px;font-weight:700;padding:8px 12px;border-radius:12px;min-width:110px}
+#v-mes .tile .name{font-size:18px;color:var(--text)}
+#v-mes .tile .big{font-size:46px}
+#v-mes .tile .sub{font-size:14px}
+#v-mes td,#v-mes th{font-size:18px;padding:11px 6px}
+#v-mes th{font-size:15px;color:var(--text2)}
+#v-mes .card h2{font-size:18px}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 .sq{min-width:0;overflow:hidden;aspect-ratio:1/1;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:16px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;text-align:left;font:inherit;color:var(--text)}
 .sq:active{transform:scale(.98)}
@@ -197,15 +203,15 @@ function renderMes(){
   <div class="card">
     <div class="tiles">${order.map(i=>`
       <div class="tile ${hi.length<N&&hi.includes(i)?'lead':''}">
-        <div class="name">${dot(i)}${P[i]}</div>
+        <div class="name">${P[i]}</div>
         <div class="big">${t[i]}</div>
         <div class="sub">puntos</div>
         ${hi.length<N&&hi.includes(i)?'<span class="badge good">Líder</span>':''}
       </div>`).join('')}</div>
   </div>
   <div class="card">
-    <h2>Sorteos de ${label(cur).toLowerCase()}</h2>
-    <div class="scroll"><table><thead><tr><th>Día</th>${P.map((p,i)=>`<th>${dot(i)} ${D.corto[i]}</th>`).join('')}<th></th></tr></thead>
+    <h2>Sorteos de ${label(cur).toUpperCase()}</h2>
+    <div class="scroll"><table><thead><tr><th>Día</th>${P.map((p,i)=>`<th>${D.corto[i]}</th>`).join('')}<th></th></tr></thead>
     <tbody>${d.slice().reverse().map(x=>{const mx=Math.max(...x.p);return `<tr><td>${DIA[x.wd]||''} ${x.d} ${x.mine?'<span class="mine">nuevo</span>':''}</td>${x.p.map(v=>`<td class="${v===mx&&mx>0?'hi':''}">${v}</td>`).join('')}<td>${x.mine?`<button class="btn ghost" data-del="${x.id}" style="padding:4px 8px;font-size:12px">Quitar</button>`:''}</td></tr>`}).join('')}</tbody></table></div>
   </div>
   `;
@@ -502,7 +508,7 @@ function renderInicio(){
 const R={semana:renderSemana,boleto:renderBoleto,inicio:renderInicio,mes:renderMes,clasif:renderClasif,hist:renderHist,cenas:renderCenas};
 let view='inicio';
 const TT={semana:'Números de la semana',boleto:'Boleto',mes:'',clasif:'Clasificación',hist:'Histórico',cenas:'Cenas'};
-function show(v){view=v;$('#hx').innerHTML='';$('#ttl').textContent=v==='mes'?`${label(cur)} ${cur.y}`:(TT[v]||'');document.body.classList.toggle('sub',v!=='inicio');document.querySelectorAll('section').forEach(s=>s.classList.toggle("on",s.id==="v-"+v));R[v]();scrollTo(0,0)}
+function show(v){view=v;$('#hx').innerHTML='';$('#ttl').textContent=v==='mes'?`${label(cur).toUpperCase()} ${cur.y}`:(TT[v]||'');document.body.classList.toggle('sub',v!=='inicio');document.querySelectorAll('section').forEach(s=>s.classList.toggle("on",s.id==="v-"+v));R[v]();scrollTo(0,0)}
 function renderAll(){R[view]()}
 $('#back').onclick=()=>{if(history.length>1&&view!=='inicio'&&sessionStorage.getItem('lotoNav'))history.back();else location.hash='inicio'};
 addEventListener('hashchange',()=>{try{sessionStorage.setItem('lotoNav','1')}catch(e){}const h=location.hash.slice(1);show(R[h]?h:'inicio')});
