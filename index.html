@@ -35,10 +35,17 @@ body.sub #back{display:block}
 body:not(.sub) header{display:none}
 body:not(.sub) main{padding-top:20px}
 body.sub .brand span{display:none}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.sq{aspect-ratio:1/1;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:16px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;text-align:left;font:inherit;color:var(--text)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.sq{min-width:0;overflow:hidden;aspect-ratio:1/1;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:16px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;text-align:left;font:inherit;color:var(--text)}
 .sq:active{transform:scale(.98)}
 .sq svg{width:38px;height:38px}
+.sq.big1 svg{width:64px;height:64px}
+.ticker{overflow:hidden;margin-top:6px;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.tk{display:inline-flex;white-space:nowrap;animation:tk 9s linear infinite;font-size:13px;color:var(--text2)}
+.tk span{margin-right:14px;display:inline-flex;align-items:center;gap:4px}
+.tk b{color:var(--text)}
+.tk .sep{color:var(--muted)}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .sq .t{font-size:18px;font-weight:700}
 .sq .d{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.35}
 .sq.k1 svg{color:#2a78d6}.sq.k2 svg{color:#c98500}.sq.k3 svg{color:#1baf7a}.sq.k4 svg{color:#eb6834}
@@ -376,6 +383,7 @@ function renderInicio(){
   recalcCur();
   const lo=lows(cur.tot),pend=pendientes(),cs=closed();
   const s=stats(cs);const minPago=Math.min(...s.map(x=>x.pago));const lider=[0,1,2].filter(i=>Math.abs(s[i].pago-minPago)<1e-9);
+  const ordC=[0,1,2].sort((a,b)=>cur.tot[b]-cur.tot[a]);const tk=ordC.map((i,k)=>`<span>${k+1}º ${dot(i)} ${P[i]} <b>${cur.tot[i]}</b></span>`).join('')+'<span class="sep">•</span>';
   const hi=highs(cur.tot);const mesTxt=hi.length===N?'Empatados los tres':hi.length>1?'Empate arriba':`Va primero ${P[hi[0]]}`;
   const ic={
     mes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
@@ -383,7 +391,7 @@ function renderInicio(){
     hist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
     cenas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5a2 2 0 0 0 2 2M9 3v5M17 21V3c-2 1-3 4-3 7h3"/></svg>'};
   $('#v-inicio').innerHTML=`<div class="grid">
-    <button class="sq k1" data-go="mes">${ic.mes}<div><div class="t">Este mes</div><div class="d">${label(cur)}: ${cur.tot.join(' · ')}<br>${mesTxt}</div></div></button>
+    <button class="sq k1 big1" data-go="mes">${ic.mes}<div style="min-width:0"><div class="t">${label(cur)} ${cur.y}</div><div class="ticker"><div class="tk">${tk}${tk}</div></div></div></button>
     <button class="sq k2" data-go="clasif">${ic.clasif}<div><div class="t">Clasificación</div><div class="d">Menos cenas pagadas: ${lider.map(i=>P[i]).join(' y ')}</div></div></button>
     <button class="sq k3" data-go="hist">${ic.hist}<div><div class="t">Histórico</div><div class="d">Desde ${MES[meses[0].m-1].toLowerCase()} ${meses[0].y}, año a año</div></div></button>
     <button class="sq k4" data-go="cenas">${ic.cenas}<div><div class="t">Cenas</div><div class="d">${pend.length?pend.length+' pendientes':'Ninguna pendiente'}</div></div></button>
@@ -393,8 +401,8 @@ function renderInicio(){
 // ---------- nav ----------
 const R={inicio:renderInicio,mes:renderMes,clasif:renderClasif,hist:renderHist,cenas:renderCenas};
 let view='inicio';
-const TT={mes:'Este mes',clasif:'Clasificación',hist:'Histórico',cenas:'Cenas'};
-function show(v){view=v;$('#ttl').textContent=TT[v]||'';document.body.classList.toggle('sub',v!=='inicio');document.querySelectorAll('section').forEach(s=>s.classList.toggle("on",s.id==="v-"+v));R[v]();scrollTo(0,0)}
+const TT={mes:'',clasif:'Clasificación',hist:'Histórico',cenas:'Cenas'};
+function show(v){view=v;$('#ttl').textContent=v==='mes'?`${label(cur)} ${cur.y}`:(TT[v]||'');document.body.classList.toggle('sub',v!=='inicio');document.querySelectorAll('section').forEach(s=>s.classList.toggle("on",s.id==="v-"+v));R[v]();scrollTo(0,0)}
 function renderAll(){R[view]()}
 $('#back').onclick=()=>{if(history.length>1&&view!=='inicio'&&sessionStorage.getItem('lotoNav'))history.back();else location.hash='inicio'};
 addEventListener('hashchange',()=>{try{sessionStorage.setItem('lotoNav','1')}catch(e){}const h=location.hash.slice(1);show(R[h]?h:'inicio')});
