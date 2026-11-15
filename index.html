@@ -138,6 +138,12 @@ const label=m=>(m.label||MES[m.m-1]);
 function lows(t){const mn=Math.min(...t);return t.map((v,i)=>v===mn?i:-1).filter(i=>i>=0)}
 function highs(t){const mx=Math.max(...t);return t.map((v,i)=>v===mx?i:-1).filter(i=>i>=0)}
 function payer(m){const l=lows(m.tot);return l.length===1?l[0]:(l.length===N?'all':l)}
+// reparto: 1º no paga, 2º paga 1/3, 3º paga 2/3 (empates: se reparten a partes iguales)
+const SH=[0,1/3,2/3];
+function shares(m){const o=[0,1,2].sort((a,b)=>m.tot[b]-m.tot[a]);const r=[0,0,0];let k=0;while(k<3){let j=k;while(j+1<3&&m.tot[o[j+1]]===m.tot[o[k]])j++;let sum=0;for(let q=k;q<=j;q++)sum+=SH[q];for(let q=k;q<=j;q++)r[o[q]]=sum/(j-k+1);k=j+1}return r}
+function frac(v){const t=[[0,'0'],[1/6,'1/6'],[1/3,'1/3'],[1/2,'1/2'],[2/3,'2/3'],[1,'1']];let b=t[0];t.forEach(x=>{if(Math.abs(x[0]-v)<Math.abs(b[0]-v))b=x});return b[1]}
+function payTxt(m){const sh=shares(m);return [0,1,2].filter(i=>sh[i]>1e-9).sort((a,b)=>sh[b]-sh[a]).map(i=>`${dot(i)} <b>${P[i]}</b> ${frac(sh[i])}`).join('&nbsp; ')}
+const f1=v=>(Math.round(v*10)/10).toLocaleString('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});
 
 const closed=()=>meses.filter(m=>!m.enCurso);
 // ---------- ESTE MES ----------
@@ -146,20 +152,20 @@ function renderMes(){
   const t=cur.tot, lo=lows(t), hi=highs(t), d=curDraws();
   const order=[0,1,2].sort((a,b)=>t[b]-t[a]);
   let heroTxt;
-  if(lo.length===N) heroTxt='Ahora mismo vais <b>empatados los tres</b>.';
-  else if(lo.length>1) heroTxt=`Ahora mismo hay <b>empate abajo</b> entre ${lo.map(i=>P[i]).join(' y ')}.`;
-  else {const gap=Math.min(...t.filter((v,i)=>i!==lo[0]))-t[lo[0]];heroTxt=`Si acabara hoy, pagaría <b>${P[lo[0]]}</b> (a ${gap} punto${gap===1?'':'s'} de salvarse).`}
+  if(hi.length===N) heroTxt='Ahora mismo vais <b>empatados los tres</b>.';
+  else if(hi.length>1) heroTxt=`Van primeros <b>${hi.map(i=>P[i]).join(' y ')}</b>, empatados.`;
+  else {const gap=t[hi[0]]-Math.max(...t.filter((v,i)=>i!==hi[0]));heroTxt=`Va primero <b>${P[hi[0]]}</b>, con ${gap} punto${gap===1?'':'s'} de ventaja.`}
   const pend=pendientes();
   $("#v-mes").innerHTML=`
   <div class="card">
     <h2>${label(cur)} ${cur.y} <small>${d.length} sorteos jugados</small></h2>
     <p class="hero">${heroTxt}</p>
     <div class="tiles">${order.map(i=>`
-      <div class="tile ${lo.length<N&&lo.includes(i)?'pays':''} ${hi.length<N&&hi.includes(i)?'lead':''}">
+      <div class="tile ${hi.length<N&&hi.includes(i)?'lead':''}">
         <div class="name">${dot(i)}${P[i]}</div>
         <div class="big">${t[i]}</div>
         <div class="sub">puntos</div>
-        ${lo.length<N&&lo.includes(i)?'<span class="badge bad">Paga</span>':''}${hi.length<N&&hi.includes(i)?'<span class="badge good">Líder</span>':''}
+        ${hi.length<N&&hi.includes(i)?'<span class="badge good">Líder</span>':''}
       </div>`).join('')}</div>
   </div>
   <div class="card">
@@ -176,7 +182,7 @@ function renderMes(){
     <div class="scroll"><table><thead><tr><th>Día</th>${P.map((p,i)=>`<th>${dot(i)} ${D.corto[i]}</th>`).join('')}<th></th></tr></thead>
     <tbody>${d.slice().reverse().map(x=>{const mx=Math.max(...x.p);return `<tr><td>${DIA[x.wd]||''} ${x.d} ${x.mine?'<span class="mine">nuevo</span>':''}</td>${x.p.map(v=>`<td class="${v===mx&&mx>0?'hi':''}">${v}</td>`).join('')}<td>${x.mine?`<button class="btn ghost" data-del="${x.id}" style="padding:4px 8px;font-size:12px">Quitar</button>`:''}</td></tr>`}).join('')}</tbody></table></div>
   </div>
-  ${pend.length?`<div class="card"><h2>Cenas pendientes <small>${pend.length}</small></h2><ul class="list">${pend.map(m=>{const p=payer(m);return `<li><span>${label(m)} ${m.y}</span><span>${whoTxt(p)} <span class="meta">${m.tot.join(' · ')}</span></span></li>`}).join('')}</ul></div>`:''}
+  ${pend.length?`<div class="card"><h2>Cenas pendientes <small>${pend.length}</small></h2><ul class="list">${pend.map(m=>{const p=payer(m);return `<li><span>${label(m)} ${m.y}</span><span style="text-align:right">${payTxt(m)}<br><span class="meta">${m.tot.join(' · ')}</span></span></li>`}).join('')}</ul></div>`:''}
   `;
   // stepper
   const vals=[0,0,0];
@@ -205,17 +211,17 @@ function inFilter(m){
   return m.y===+clFilter;
 }
 function stats(ms){
-  const s=P.map(()=>({pts:0,pago:0,emp:0,gana:0,meses:0,draws:0,dpts:0,best:null,worst:null}));
+  const s=P.map(()=>({pts:0,pago:0,ult:0,gana:0,meses:0,draws:0,dpts:0,best:null,worst:null}));
   ms.forEach(m=>{
-    const p=payer(m),h=highs(m.tot);
-    m.tot.forEach((v,i)=>{s[i].pts+=v;s[i].meses++;});
-    if(typeof p==='number')s[p].pago++;else if(Array.isArray(p))p.forEach(i=>s[i].emp++);
+    const h=highs(m.tot),l=lows(m.tot),sh=shares(m);
+    m.tot.forEach((v,i)=>{s[i].pts+=v;s[i].meses++;s[i].pago+=sh[i];});
     if(h.length===1)s[h[0]].gana++;
+    if(l.length===1)s[l[0]].ult++;
     m.draws.forEach(x=>x.p.forEach((v,i)=>{if(typeof v==='number'){s[i].draws++;s[i].dpts+=v}}));
   });
-  // streaks without paying (consecutive closed months)
-  P.forEach((_,i)=>{let run=0,best=0,bestEnd=null;ms.forEach(m=>{if(payer(m)===i){run=0}else{run++;if(run>best){best=run;bestEnd=m}}});s[i].racha=best;s[i].rachaEnd=bestEnd;
-    let cr=0;for(let k=ms.length-1;k>=0;k--){if(payer(ms[k])===i)break;cr++}s[i].rachaAct=cr;});
+  // racha sin quedar último
+  P.forEach((_,i)=>{const isLast=m=>{const l=lows(m.tot);return l.length===1&&l[0]===i};let run=0,best=0;ms.forEach(m=>{if(isLast(m))run=0;else{run++;best=Math.max(best,run)}});s[i].racha=best;
+    let cr=0;for(let k=ms.length-1;k>=0;k--){if(isLast(ms[k]))break;cr++}s[i].rachaAct=cr;});
   return s;
 }
 function renderClasif(){
@@ -232,7 +238,7 @@ function renderClasif(){
   $("#v-clasif").innerHTML=`
   <div class="card">
     <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px">
-      <h2 style="margin:0">Quién paga más <small>${ms.length} meses</small></h2>
+      <h2 style="margin:0">Cenas pagadas <small>${ms.length} meses</small></h2>
       <select id="clSel">
         <option value="all">Todo (desde 2010)</option>
         <option value="viejo">Formato antiguo (hasta jul 2022)</option>
@@ -243,8 +249,8 @@ function renderClasif(){
     <div class="tiles">${ord.map((i,k)=>`
       <div class="tile ${k===2?'pays':''} ${k===0?'lead':''}">
         <div class="name">${dot(i)}${P[i]}</div>
-        <div class="big">${s[i].pago}</div>
-        <div class="sub">cenas pagadas${s[i].emp?` · ${s[i].emp} empates`:''}</div>
+        <div class="big">${f1(s[i].pago)}</div>
+        <div class="sub">cenas pagadas</div>
       </div>`).join('')}</div>
     <div class="chart" id="chPago" style="margin-top:14px"></div>
   </div>
@@ -253,15 +259,16 @@ function renderClasif(){
     <div class="scroll"><table>
       <thead><tr><th></th>${P.map((p,i)=>`<th>${dot(i)} ${D.corto[i]}</th>`).join('')}</tr></thead>
       <tbody>
-        ${row('Cenas pagadas',s.map(x=>x.pago),'lo-hi')}
-        ${row('Meses ganados (1º)',s.map(x=>x.gana),'hi')}
+        ${row('Cenas pagadas',s.map(x=>f1(x.pago)),'lo-hi')}
+        ${row('Veces 1º (no paga)',s.map(x=>x.gana),'hi')}
+        ${row('Veces último (2/3)',s.map(x=>x.ult),'lo-hi')}
         ${row('Puntos totales',s.map(x=>x.pts),'hi')}
         ${row('Media por mes',s.map(x=>x.meses?(x.pts/x.meses).toFixed(1):'–'),'hi')}
         ${row('Media por sorteo',s.map(x=>x.draws?(x.dpts/x.draws).toFixed(2):'–'),'hi')}
-        ${row('Racha sin pagar (récord)',s.map(x=>x.racha+' m'),'hi')}
-        ${row('Racha actual sin pagar',s.map(x=>x.rachaAct+' m'),'hi')}
+        ${row('Racha sin ser último (récord)',s.map(x=>x.racha+' m'),'hi')}
+        ${row('Racha actual sin ser último',s.map(x=>x.rachaAct+' m'),'hi')}
       </tbody></table></div>
-    <div class="note">Paga el que menos puntos hace en el mes. Si empatan abajo, cuenta como empate y no suma a nadie. "Media por sorteo" solo usa los meses con el detalle de cada sorteo (2010–2021).</div>
+    <div class="note">Cada mes el 1º no paga, el 2º paga 1/3 de la cena y el último 2/3. Si hay empate, se reparten a partes iguales. "Cenas pagadas" suma esas partes. "Media por sorteo" solo usa los meses con el detalle de cada sorteo (2010–2021).</div>
   </div>
   <div class="card"><h2>Récords</h2><div class="kv">
     ${rOld?`<div>Mejor mes (formato antiguo)</div><div>${dot(rOld.hi.i)} ${P[rOld.hi.i]} · ${rOld.hi.v} pts · ${label(rOld.hi.m)} ${rOld.hi.m.y}</div>
@@ -273,12 +280,12 @@ function renderClasif(){
   $('#clSel').onchange=e=>{clFilter=e.target.value;renderClasif()};
   // cumulative dinners paid over time (all filtered months)
   const cum=[0,1,2].map(()=>[]);const c=[0,0,0];
-  ms.forEach(m=>{const p=payer(m);if(typeof p==='number')c[p]++;c.forEach((v,i)=>cum[i].push(v))});
+  ms.forEach(m=>{const sh=shares(m);sh.forEach((v,i)=>c[i]+=v);c.forEach((v,i)=>cum[i].push(Math.round(v*10)/10))});
   document.querySelector('#chPago').insertAdjacentHTML('beforebegin',`<div style="font-size:13px;font-weight:600;margin:4px 0 6px">Cenas pagadas acumuladas</div>${legend()}`);
   lineChart('#chPago',ms.map(m=>`${label(m).slice(0,3)} ${m.y}`),cum,{noDots:true});
 }
 function row(name,vals,mode){
-  const nums=vals.map(v=>parseFloat(v));const mx=Math.max(...nums),mn=Math.min(...nums);
+  const nums=vals.map(v=>parseFloat(String(v).replace(',','.')));const mx=Math.max(...nums),mn=Math.min(...nums);
   return `<tr><td>${name}</td>${vals.map((v,i)=>{let c='';if(mode==='lo-hi'){if(nums[i]===mx)c='lo';else if(nums[i]===mn)c='hi'}else if(nums[i]===mx&&mx!==mn)c='hi';return `<td class="${c}">${v}</td>`}).join('')}</tr>`;
 }
 
@@ -290,7 +297,7 @@ function renderHist(){
   const ms=meses.filter(m=>m.y===histYear);
   const totY=[0,1,2].map(i=>ms.reduce((s,m)=>s+m.tot[i],0));
   // per-year paid counts
-  const per=years.slice().reverse().map(y=>{const c=[0,0,0];closed().filter(m=>m.y===y).forEach(m=>{const p=payer(m);if(typeof p==='number')c[p]++});return {y,c}});
+  const per=years.slice().reverse().map(y=>{const c=[0,0,0];closed().filter(m=>m.y===y).forEach(m=>{shares(m).forEach((v,i)=>c[i]+=v)});return {y,c:c.map(v=>Math.round(v*10)/10)}});
   $("#v-hist").innerHTML=`
   <div class="card">
     <h2>Cenas pagadas por año</h2>${legend()}
@@ -302,11 +309,11 @@ function renderHist(){
       <select id="hSel">${years.map(y=>`<option ${y===histYear?'selected':''}>${y}</option>`).join('')}</select>
     </div>
     <div class="scroll"><table>
-      <thead><tr><th>Mes</th>${P.map((p,i)=>`<th>${dot(i)} ${D.corto[i]}</th>`).join('')}<th>Paga</th></tr></thead>
-      <tbody>${ms.map(m=>{const lo=lows(m.tot),hi=highs(m.tot),p=payer(m);return `<tr><td>${label(m)}${m.enCurso?' <span class="meta" style="color:var(--muted);font-size:11px">en curso</span>':''}</td>${m.tot.map((v,i)=>`<td class="${lo.length<N&&lo.includes(i)?'lo':hi.length<N&&hi.includes(i)?'hi':''}">${v}</td>`).join('')}<td style="font-size:13px">${m.enCurso?'–':whoTxt(p)}</td></tr>`}).join('')}
+      <thead><tr><th>Mes</th>${P.map((p,i)=>`<th>${dot(i)} ${D.corto[i]}</th>`).join('')}<th>Pagan</th></tr></thead>
+      <tbody>${ms.map(m=>{const lo=lows(m.tot),hi=highs(m.tot),p=payer(m);return `<tr><td>${label(m)}${m.enCurso?' <span class="meta" style="color:var(--muted);font-size:11px">en curso</span>':''}</td>${m.tot.map((v,i)=>`<td class="${lo.length<N&&lo.includes(i)?'lo':hi.length<N&&hi.includes(i)?'hi':''}">${v}</td>`).join('')}<td style="font-size:12px;text-align:right;white-space:nowrap">${m.enCurso?'–':payTxt(m).replace(/&nbsp; /g,'<br>')}</td></tr>`}).join('')}
       <tr><td><b>Total</b></td>${totY.map(v=>`<td><b>${v}</b></td>`).join('')}<td></td></tr></tbody>
     </table></div>
-    <div class="note">En rojo el que paga ese mes, en verde el que gana.</div>
+    <div class="note">En verde el 1º (no paga), en rojo el último (paga 2/3). El 2º paga 1/3.</div>
   </div>`;
   $('#hSel').onchange=e=>{histYear=+e.target.value;renderHist()};
   barChart('#chAnio',per.map(x=>String(x.y).slice(2)),per.map(x=>x.c),per.map(x=>x.y));
@@ -321,12 +328,12 @@ function renderCenas(){
   const top=Object.entries(sitios).sort((a,b)=>b[1]-a[1]).slice(0,10);const mx=top.length?top[0][1]:1;
   const fmt=f=>{if(!f)return '';const [y,mo,d]=f.split('-');return `${+d}/${+mo}/${y.slice(2)}`};
   $("#v-cenas").innerHTML=`
-  ${pend.length?`<div class="card"><h2>Pendientes <small>${pend.length} cenas por hacer</small></h2><ul class="list">${pend.map(m=>`<li><span>${label(m)} ${m.y}</span><span>${whoTxt(payer(m))}</span></li>`).join('')}</ul></div>`:''}
+  ${pend.length?`<div class="card"><h2>Pendientes <small>${pend.length} cenas por hacer</small></h2><ul class="list">${pend.map(m=>`<li><span>${label(m)} ${m.y}</span><span style="text-align:right">${payTxt(m)}</span></li>`).join('')}</ul></div>`:''}
   <div class="card"><h2>Sitios favoritos</h2>
     ${top.map(([k,v])=>`<div style="display:grid;grid-template-columns:150px 1fr 28px;gap:10px;align-items:center;margin:6px 0;font-size:13px"><span>${cap(k)}</span><div class="bar" style="width:${v/mx*100}%"></div><b style="text-align:right">${v}</b></div>`).join('')}
   </div>
   <div class="card"><h2>Todas las cenas <small>${paid.length}</small></h2><ul class="list">
-    ${paid.map(m=>`<li><span>${label(m)} ${m.y}<br><span class="meta">${whoTxt(payer(m))}</span></span><span style="text-align:right">${cap(m.pago.sitio||'—')}<br><span class="meta">${fmt(m.pago.fecha)}${m.pago.importe?` · ${m.pago.importe} €`:''}</span></span></li>`).join('')}
+    ${paid.map(m=>`<li><span>${label(m)} ${m.y}<br><span class="meta">${payTxt(m)}</span></span><span style="text-align:right">${cap(m.pago.sitio||'—')}<br><span class="meta">${fmt(m.pago.fecha)}${m.pago.importe?` · ${m.pago.importe} €`:''}</span></span></li>`).join('')}
   </ul></div>`;
 }
 const cap=s=>s.toLowerCase().replace(/(^|[\s\-(/'])(\p{L})/gu,(a,b,c)=>b+c.toUpperCase());
@@ -366,8 +373,8 @@ function niceStep(mx,t=5){const raw=mx/t,p=Math.pow(10,Math.floor(Math.log10(raw
 function renderInicio(){
   recalcCur();
   const lo=lows(cur.tot),pend=pendientes(),cs=closed();
-  const s=stats(cs);const minPago=Math.min(...s.map(x=>x.pago));const lider=[0,1,2].filter(i=>s[i].pago===minPago);
-  const mesTxt=lo.length===N?'Empatados los tres':lo.length>1?'Empate abajo':`Ahora paga ${P[lo[0]]}`;
+  const s=stats(cs);const minPago=Math.min(...s.map(x=>x.pago));const lider=[0,1,2].filter(i=>Math.abs(s[i].pago-minPago)<1e-9);
+  const hi=highs(cur.tot);const mesTxt=hi.length===N?'Empatados los tres':hi.length>1?'Empate arriba':`Va primero ${P[hi[0]]}`;
   const ic={
     mes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
     clasif:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>',
@@ -392,6 +399,6 @@ let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(renderAll,1
 show('inicio');if(location.hash&&location.hash!=='#inicio')history.replaceState(null,'',location.pathname+location.search);
 })();
 </script>
-<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});let _r=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!_r){_r=1;location.reload()}});</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});let _r=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!_r){_r=1;location.reload()}});}</script>
 </body>
 </html>
