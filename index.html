@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794772632">
+<meta name="loto-version" content="1794773266">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -193,8 +193,6 @@ function renderMes(){
   const pend=pendientes();
   $("#v-mes").innerHTML=`
   <div class="card">
-    <h2>${label(cur)} ${cur.y} <small>${d.length} sorteos jugados</small></h2>
-    <p class="hero">${heroTxt}</p>
     <div class="tiles">${order.map(i=>`
       <div class="tile ${hi.length<N&&hi.includes(i)?'lead':''}">
         <div class="name">${dot(i)}${P[i]}</div>
