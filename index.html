@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794778116">
+<meta name="loto-version" content="1794778156">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -380,7 +380,6 @@ function renderHist(){
       <tbody>${ms.map(m=>{const lo=lows(m.tot),hi=highs(m.tot),p=payer(m);return `<tr><td>${label(m)}${m.enCurso?' <span class="meta" style="color:var(--muted);font-size:11px">en curso</span>':''}</td>${m.tot.map((v,i)=>`<td class="${lo.length<N&&lo.includes(i)?'lo':hi.length<N&&hi.includes(i)?'hi':''}">${v}</td>`).join('')}</tr>`}).join('')}
       <tr><td><b>Total</b></td>${totY.map(v=>`<td><b>${v}</b></td>`).join('')}</tr></tbody>
     </table></div>
-    <div class="note">En verde el 1º del mes y en rojo el último.</div>
   </div>`;
   $('#hx').innerHTML=`<select id="hSel" class="bigsel">${years.map(y=>`<option ${y===histYear?'selected':''}>${y}</option>`).join('')}</select>`;$('#hSel').onchange=e=>{histYear=+e.target.value;renderHist()};
 }
