@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794772463">
+<meta name="loto-version" content="1794772632">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -54,12 +54,16 @@ body.sub .brand span{display:none}
 .sq .t{font-size:18px;font-weight:700}
 .sq .d{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.35}
 .sq.k5 svg{color:#6250d6}
-.sq.k6 svg{color:#e34948;width:84px}
+.sq.k6 svg{width:96px}
 .nb.rein{background:radial-gradient(circle at 35% 30%,#fff3c4,#f5c518 70%,#c99a00);border-color:#c99a00}
 .sq.wide{grid-column:1/-1;aspect-ratio:auto;flex-direction:row;justify-content:center;gap:16px;padding:18px}
 .sq.wide>div{width:auto;text-align:left}
 .balls{display:flex;flex-wrap:wrap;gap:5px}
 .nb{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle at 35% 30%,#fff,#ecebe6 70%,#cfcdc5);color:#111;font-weight:800;font-size:16px;text-align:center;padding:0}
+.balls span.nb,.apu span.nb{position:relative;border:0;background:radial-gradient(circle at 36% 30%,#fff 0,#f7f6f2 30%,#d8d6cf 62%,#a9a69c 85%,#8a867c 100%);box-shadow:0 3px 4px rgba(0,0,0,.28);font-family:'Arial Black',Arial,sans-serif;font-weight:900;color:#141414;width:44px;height:44px;font-size:15px;letter-spacing:-.5px}
+.balls span.nb::before,.apu span.nb::before{content:'';position:absolute;inset:4px;border:1px solid rgba(20,20,20,.6);border-radius:50%}
+.balls span.nb::after,.apu span.nb::after{content:'';position:absolute;left:7px;top:4px;width:12px;height:7px;border-radius:50%;background:radial-gradient(#fff,rgba(255,255,255,0));transform:rotate(-30deg)}
+.apu span.nb.rein{background:radial-gradient(circle at 36% 30%,#fffbe0 0,#ffe680 30%,#f5c518 62%,#c99a00 88%,#9c7600 100%)}
 .nb.bad{border-color:var(--bad);color:var(--bad)}
 .apu{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--grid)}
 .apu:last-child{border-bottom:0}
@@ -499,7 +503,7 @@ function renderInicio(){
     mes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
     clasif:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>',
     hist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
-    semana:'<svg viewBox="0 0 32 22"><defs><radialGradient id="bg6" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#eeede8"/><stop offset="1" stop-color="#b9b6ac"/></radialGradient></defs>'+[[5.5,6],[16,6],[26.5,6],[5.5,16.5],[16,16.5],[26.5,16.5]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="url(#bg6)" stroke="#8d897e" stroke-width=".5"/><circle cx="${x}" cy="${y}" r="2.6" fill="none" stroke="#e34948" stroke-width=".7"/><ellipse cx="${x-1.7}" cy="${y-2}" rx="1.3" ry=".8" fill="#fff" opacity=".9"/>`).join('')+'</svg>',
+    semana:'<svg viewBox="0 0 34 24"><defs><radialGradient id="g6" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#f7f6f2"/><stop offset=".7" stop-color="#d8d6cf"/><stop offset=".9" stop-color="#a9a69c"/><stop offset="1" stop-color="#8a867c"/></radialGradient><radialGradient id="s6" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><radialGradient id="h6" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>'+[[6,6.2],[17,6.2],[28,6.2],[6,17.4],[17,17.4],[28,17.4]].map(([x,y])=>`<ellipse cx="${x+.6}" cy="${y+5.1}" rx="4.6" ry="1.1" fill="url(#h6)"/><circle cx="${x}" cy="${y}" r="5.2" fill="url(#g6)"/><circle cx="${x+.4}" cy="${y+.5}" r="3" fill="none" stroke="#1a1a1a" stroke-width=".35"/><path d="M${x-3.6} ${y-2.6} a5 5 0 0 1 2.2 -1.7" stroke="#1a1a1a" stroke-width=".3" fill="none"/><ellipse cx="${x-1.9}" cy="${y-2.3}" rx="1.6" ry=".9" fill="url(#s6)" transform="rotate(-30 ${x-1.9} ${y-2.3})"/>`).join('')+'</svg>',
     boleto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
     cenas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5a2 2 0 0 0 2 2M9 3v5M17 21V3c-2 1-3 4-3 7h3"/></svg>'};
   $('#v-inicio').innerHTML=`<div class="grid">
@@ -507,7 +511,7 @@ function renderInicio(){
     <button class="sq k2" data-go="clasif">${ic.clasif}<div><div class="t">Clasificación</div><div class="d">Menos cenas pagadas: ${lider.map(i=>P[i]).join(' y ')}</div></div></button>
     <button class="sq k3" data-go="hist">${ic.hist}<div><div class="t">Histórico</div><div class="d">Desde ${MES[meses[0].m-1].toLowerCase()} ${meses[0].y}, año a año</div></div></button>
     <button class="sq k4" data-go="cenas">${ic.cenas}<div><div class="t">Cenas</div><div class="d">${pend.length?pend.length+' pendientes':'Ninguna pendiente'}</div></div></button>
-    <button class="sq k6" data-go="semana">${ic.semana}<div><div class="t">Números de la semana</div><div class="d">${(()=>{const b=curBol();return b&&b.apuestas.length?`${b.apuestas.length} apuesta${b.apuestas.length>1?'s':''}${b.reintegro!=null?' · R '+b.reintegro:''}`:'Sin números aún'})()}</div></div></button>
+    <button class="sq k6" data-go="semana">${ic.semana}<div><div class="t">Números de la semana</div><div class="d">${(()=>{const b=curBol();return b&&b.apuestas.length?`${b.apuestas.length} apuesta${b.apuestas.length>1?'s':''}`:'Sin números aún'})()}</div></div></button>
     <button class="sq k5" data-go="boleto">${ic.boleto}<div><div class="t">Boleto</div><div class="d">Hacer foto</div></div></button>
   </div>`;
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{location.hash=b.dataset.go});
