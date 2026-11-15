@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794778064">
+<meta name="loto-version" content="1794778116">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -57,6 +57,8 @@ body.sub .brand span{display:none}
 .stab:active{transform:translateY(3px);box-shadow:0 1px 0 #cfccc2}
 .stab.on{background:linear-gradient(180deg,#2f86e6,#1d5fbf);border-color:#1a56ad;box-shadow:0 4px 0 #123f80;color:#fff}
 .stab.on span{color:#dbe9ff}
+#v-mes .pt{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;border-radius:17px;background:#c9f2d6;color:#0a6a33;font-weight:800;box-shadow:inset 0 -2px 0 rgba(0,0,0,.08)}
+#v-mes td.zero{color:#b7b5ae}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 14px}
 .sq{min-width:0;overflow:hidden;aspect-ratio:1/1;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:16px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;text-align:left;font:inherit;color:var(--text)}
 .sq{background:linear-gradient(180deg,#ffffff 0%,#f6f5f1 55%,#e9e7e0 100%);border:1px solid #dcd9d0;box-shadow:0 6px 0 #cfccc2,0 10px 18px rgba(0,0,0,.14),inset 0 2px 0 rgba(255,255,255,.9),inset 0 -3px 6px rgba(0,0,0,.05);transition:transform .07s,box-shadow .07s;-webkit-tap-highlight-color:transparent;margin-bottom:6px}
@@ -259,7 +261,7 @@ function renderMes(){
   <div class="card">
     <h2>Sorteos de ${label(cur).toUpperCase()}</h2>
     <div class="scroll"><table><thead><tr><th>Día</th>${P.map((p,i)=>`<th>${D.corto[i]}</th>`).join('')}<th></th></tr></thead>
-    <tbody>${d.slice().reverse().map(x=>{const mx=Math.max(...x.p);return `<tr><td>${DIA[x.wd]||''} ${x.d} ${x.mine?'<span class="mine">nuevo</span>':''}</td>${x.p.map(v=>`<td class="${v===mx&&mx>0?'hi':''}">${v}</td>`).join('')}<td>${x.mine?`<button class="btn ghost" data-del="${x.id}" style="padding:4px 8px;font-size:12px">Quitar</button>`:''}</td></tr>`}).join('')}</tbody></table></div>
+    <tbody>${d.slice().reverse().map(x=>{const mx=Math.max(...x.p);return `<tr><td>${DIA[x.wd]||''} ${x.d} ${x.mine?'<span class="mine">nuevo</span>':''}</td>${x.p.map(v=>v>0?`<td><span class="pt">${v}</span></td>`:`<td class="zero">${v}</td>`).join('')}<td>${x.mine?`<button class="btn ghost" data-del="${x.id}" style="padding:4px 8px;font-size:12px">Quitar</button>`:''}</td></tr>`}).join('')}</tbody></table></div>
   </div>
   `;
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{local.draws=(local.draws||[]).filter(x=>x.id!=b.dataset.del);saveLocal();renderAll()});
