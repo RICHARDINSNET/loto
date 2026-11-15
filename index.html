@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794777878">
+<meta name="loto-version" content="1794778064">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -51,6 +51,12 @@ body.sub .brand span{display:none}
 #v-hist .card h2{font-size:19px}
 #v-hist .card .row{margin-bottom:4px!important}
 #v-hist .note{margin-top:4px}
+.subtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stab{font:inherit;font-weight:700;font-size:15px;color:var(--text);padding:10px 4px 9px;border-radius:12px;border:1px solid #dcd9d0;background:linear-gradient(180deg,#fff,#efede7);box-shadow:0 4px 0 #cfccc2;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .06s,box-shadow .06s;-webkit-tap-highlight-color:transparent}
+.stab span{font-size:12px;font-weight:600;color:var(--text2)}
+.stab:active{transform:translateY(3px);box-shadow:0 1px 0 #cfccc2}
+.stab.on{background:linear-gradient(180deg,#2f86e6,#1d5fbf);border-color:#1a56ad;box-shadow:0 4px 0 #123f80;color:#fff}
+.stab.on span{color:#dbe9ff}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 14px}
 .sq{min-width:0;overflow:hidden;aspect-ratio:1/1;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:16px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;text-align:left;font:inherit;color:var(--text)}
 .sq{background:linear-gradient(180deg,#ffffff 0%,#f6f5f1 55%,#e9e7e0 100%);border:1px solid #dcd9d0;box-shadow:0 6px 0 #cfccc2,0 10px 18px rgba(0,0,0,.14),inset 0 2px 0 rgba(255,255,255,.9),inset 0 -3px 6px rgba(0,0,0,.05);transition:transform .07s,box-shadow .07s;-webkit-tap-highlight-color:transparent;margin-bottom:6px}
@@ -378,6 +384,7 @@ function renderHist(){
 }
 
 // ---------- CENAS ----------
+let cenTab='pend';
 function renderCenas(){
   const pend=pendientes();
   const paid=closed().filter(m=>m.pago).slice().reverse();
@@ -385,14 +392,15 @@ function renderCenas(){
   const sitios={};paid.forEach(m=>{const k=norm(m.pago.sitio);if(k&&k!=='COMPENSADAS')sitios[k]=(sitios[k]||0)+1});
   const top=Object.entries(sitios).sort((a,b)=>b[1]-a[1]).slice(0,10);const mx=top.length?top[0][1]:1;
   const fmt=f=>{if(!f)return '';const [y,mo,d]=f.split('-');return `${+d}/${+mo}/${y.slice(2)}`};
-  $("#v-cenas").innerHTML=`
-  ${pend.length?`<div class="card"><h2>Pendientes <small>${pend.length} cenas por hacer</small></h2><ul class="list">${pend.map(m=>`<li><span>${label(m)} ${m.y}</span><span style="text-align:right">${payTxt(m)}</span></li>`).join('')}</ul></div>`:''}
-  <div class="card"><h2>Sitios favoritos</h2>
-    ${top.map(([k,v])=>`<div style="display:grid;grid-template-columns:150px 1fr 28px;gap:10px;align-items:center;margin:6px 0;font-size:13px"><span>${cap(k)}</span><div class="bar" style="width:${v/mx*100}%"></div><b style="text-align:right">${v}</b></div>`).join('')}
-  </div>
-  <div class="card"><h2>Todas las cenas <small>${paid.length}</small></h2><ul class="list">
-    ${paid.map(m=>`<li><span>${label(m)} ${m.y}<br><span class="meta">${payTxt(m," · ")}</span></span><span style="text-align:right">${cap(m.pago.sitio||'—')}<br><span class="meta">${fmt(m.pago.fecha)}${m.pago.importe?` · ${m.pago.importe} €`:''}</span></span></li>`).join('')}
-  </ul></div>`;
+  const tabs=[['pend','Pendientes',pend.length],['todas','Todas',paid.length],['sitios','Sitios',top.length]];
+  if(!tabs.some(t=>t[0]===cenTab))cenTab='pend';
+  let body='';
+  if(cenTab==='pend')body=pend.length?`<ul class="list">${pend.map(m=>`<li><span><b>${label(m)} ${m.y}</b></span><span style="text-align:right">${payTxt(m)}</span></li>`).join('')}</ul>`:'<p class="note">No hay cenas pendientes.</p>';
+  if(cenTab==='todas')body=`<ul class="list">${paid.map(m=>`<li><span><b>${label(m)} ${m.y}</b><br><span class="meta">${payTxt(m," · ")}</span></span><span style="text-align:right">${cap(m.pago.sitio||'—')}<br><span class="meta">${fmt(m.pago.fecha)}${m.pago.importe?` · ${m.pago.importe} €`:''}</span></span></li>`).join('')}</ul>`;
+  if(cenTab==='sitios')body=top.map(([k,v])=>`<div style="display:grid;grid-template-columns:140px 1fr 28px;gap:10px;align-items:center;margin:9px 0;font-size:15px"><span>${cap(k)}</span><div class="bar" style="width:${v/mx*100}%"></div><b style="text-align:right">${v}</b></div>`).join('');
+  $("#v-cenas").innerHTML=`<div class="subtabs">${tabs.map(([k,t,n])=>`<button class="stab ${k===cenTab?'on':''}" data-ct="${k}">${t}<span>${n}</span></button>`).join('')}</div>
+  <div class="card">${body}</div>`;
+  document.querySelectorAll('[data-ct]').forEach(x=>x.onclick=()=>{cenTab=x.dataset.ct;renderCenas()});
 }
 const cap=s=>s.toLowerCase().replace(/(^|[\s\-(/'])(\p{L})/gu,(a,b,c)=>b+c.toUpperCase());
 
