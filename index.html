@@ -7,9 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<link rel="manifest" href="manifest.json?v=10">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=10">
-<link rel="icon" href="icon-192.png?v=10">
+<link rel="manifest" href="manifest.json?v=11">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
+<link rel="icon" href="icon-192.png?v=11">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root{
@@ -28,8 +28,18 @@
 }}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
-header{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 16px 0;border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:baseline;gap:10px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#back{display:none;border:0;background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:26px;line-height:1;width:38px;height:38px;border-radius:10px;cursor:pointer;padding:0 0 3px}
+body.sub #back{display:block}
+body.sub .brand span{display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sq{aspect-ratio:1/1;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:16px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;text-align:left;font:inherit;color:var(--text)}
+.sq:active{transform:scale(.98)}
+.sq svg{width:38px;height:38px}
+.sq .t{font-size:18px;font-weight:700}
+.sq .d{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.35}
+.sq.k1 svg{color:#2a78d6}.sq.k2 svg{color:#c98500}.sq.k3 svg{color:#1baf7a}.sq.k4 svg{color:#eb6834}
 .brand h1{margin:0;font-size:24px;letter-spacing:-.02em}
 .brand span{color:var(--muted);font-size:13px}
 nav{display:flex;gap:4px;margin-top:10px;overflow-x:auto}
@@ -90,15 +100,10 @@ select,input{font:inherit;color:var(--text);background:var(--surface);border:1px
 </head>
 <body>
 <header>
-  <div class="brand"><h1>Loto Egipto</h1><span>Peña · Guillermo, Ricardo y Raúl</span></div>
-  <nav id="nav">
-    <button data-v="mes" class="on">Este mes</button>
-    <button data-v="clasif">Clasificación</button>
-    <button data-v="hist">Histórico</button>
-    <button data-v="cenas">Cenas</button>
-  </nav>
+  <div class="brand"><button id="back" aria-label="Volver">‹</button><h1>Loto Egipto</h1><span>Peña · Guillermo, Ricardo y Raúl</span></div>
 </header>
 <main>
+  <section id="v-inicio"></section>
   <section id="v-mes"></section>
   <section id="v-clasif"></section>
   <section id="v-hist"></section>
@@ -357,15 +362,34 @@ function barChart(sel,labels,groups,full){
 }
 function niceStep(mx,t=5){const raw=mx/t,p=Math.pow(10,Math.floor(Math.log10(raw)));const f=raw/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p||1}
 
+// ---------- inicio ----------
+function renderInicio(){
+  recalcCur();
+  const lo=lows(cur.tot),pend=pendientes(),cs=closed();
+  const s=stats(cs);const minPago=Math.min(...s.map(x=>x.pago));const lider=[0,1,2].filter(i=>s[i].pago===minPago);
+  const mesTxt=lo.length===N?'Empatados los tres':lo.length>1?'Empate abajo':`Ahora paga ${P[lo[0]]}`;
+  const ic={
+    mes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+    clasif:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>',
+    hist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+    cenas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5a2 2 0 0 0 2 2M9 3v5M17 21V3c-2 1-3 4-3 7h3"/></svg>'};
+  $('#v-inicio').innerHTML=`<div class="grid">
+    <button class="sq k1" data-go="mes">${ic.mes}<div><div class="t">Este mes</div><div class="d">${label(cur)}: ${cur.tot.join(' · ')}<br>${mesTxt}</div></div></button>
+    <button class="sq k2" data-go="clasif">${ic.clasif}<div><div class="t">Clasificación</div><div class="d">Menos cenas pagadas: ${lider.map(i=>P[i]).join(' y ')}</div></div></button>
+    <button class="sq k3" data-go="hist">${ic.hist}<div><div class="t">Histórico</div><div class="d">Desde ${MES[meses[0].m-1].toLowerCase()} ${meses[0].y}, año a año</div></div></button>
+    <button class="sq k4" data-go="cenas">${ic.cenas}<div><div class="t">Cenas</div><div class="d">${pend.length?pend.length+' pendientes':'Ninguna pendiente'}</div></div></button>
+  </div>`;
+  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{location.hash=b.dataset.go});
+}
 // ---------- nav ----------
-const R={mes:renderMes,clasif:renderClasif,hist:renderHist,cenas:renderCenas};
-let view='mes';
-function show(v){view=v;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));document.querySelectorAll('section').forEach(s=>s.classList.toggle("on",s.id==="v-"+v));R[v]();if(location.hash!=='#'+v)history.replaceState(null,'','#'+v)}
+const R={inicio:renderInicio,mes:renderMes,clasif:renderClasif,hist:renderHist,cenas:renderCenas};
+let view='inicio';
+function show(v){view=v;document.body.classList.toggle('sub',v!=='inicio');document.querySelectorAll('section').forEach(s=>s.classList.toggle("on",s.id==="v-"+v));R[v]();scrollTo(0,0)}
 function renderAll(){R[view]()}
-$('#nav').onclick=e=>{if(e.target.dataset.v)show(e.target.dataset.v)};
-addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(R[h]&&h!==view)show(h)});
+$('#back').onclick=()=>{if(history.length>1&&view!=='inicio'&&sessionStorage.getItem('lotoNav'))history.back();else location.hash='inicio'};
+addEventListener('hashchange',()=>{try{sessionStorage.setItem('lotoNav','1')}catch(e){}const h=location.hash.slice(1);show(R[h]?h:'inicio')});
 let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(renderAll,150)});
-const h0=location.hash.slice(1);show(R[h0]?h0:'mes');
+show('inicio');if(location.hash&&location.hash!=='#inicio')history.replaceState(null,'',location.pathname+location.search);
 })();
 </script>
 <script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});</script>
