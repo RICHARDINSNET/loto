@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794778156">
+<meta name="loto-version" content="1794778290">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -51,6 +51,16 @@ body.sub .brand span{display:none}
 #v-hist .card h2{font-size:19px}
 #v-hist .card .row{margin-bottom:4px!important}
 #v-hist .note{margin-top:4px}
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--grid);font-size:16px}
+.rank li:last-child{border-bottom:0}
+.rank .rp{flex:none;width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;background:var(--grid);color:var(--text2)}
+.rank .rp.m1{background:radial-gradient(circle at 35% 30%,#fff3b0,#f5c518 60%,#b88a00);color:#4a3600}
+.rank .rp.m2{background:radial-gradient(circle at 35% 30%,#fff,#cfd3d8 60%,#8e959e);color:#2c3138}
+.rank .rp.m3{background:radial-gradient(circle at 35% 30%,#ffe2c4,#d08a4a 60%,#8d5222);color:#3b1e06}
+.rank .rn{flex:1;min-width:0}
+.rank .rn .bar{height:6px;margin-top:5px}
+.rank b{flex:none;font-size:18px;min-width:26px;text-align:right}
 .subtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .stab{font:inherit;font-weight:700;font-size:15px;color:var(--text);padding:10px 4px 9px;border-radius:12px;border:1px solid #dcd9d0;background:linear-gradient(180deg,#fff,#efede7);box-shadow:0 4px 0 #cfccc2;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .06s,box-shadow .06s;-webkit-tap-highlight-color:transparent}
 .stab span{font-size:12px;font-weight:600;color:var(--text2)}
@@ -389,16 +399,17 @@ let cenTab='pend';
 function renderCenas(){
   const pend=pendientes();
   const paid=closed().filter(m=>m.pago).slice().reverse();
-  const norm=s=>(s||'').toUpperCase().replace(/\s{2,}.*/,'').replace(/^EL /,'').trim();
-  const sitios={};paid.forEach(m=>{const k=norm(m.pago.sitio);if(k&&k!=='COMPENSADAS')sitios[k]=(sitios[k]||0)+1});
-  const top=Object.entries(sitios).sort((a,b)=>b[1]-a[1]).slice(0,10);const mx=top.length?top[0][1]:1;
+  const PL=[[/ABANICO/,'Abanico'],[/FUSTA/,'La Fusta (Castefa)'],[/ORGIVA/,'Orgiva'],[/FAROLAS/,'5 Farolas (Sant Boi)'],[/EUROTAPA/,'Eurotapa'],[/BURGER CASTEFA/,'Burger Castefa'],[/POP VIEJO/,'Pop Viejo (Sant Boi)'],[/PUNTO UY/,'Punto Uy'],[/\b101\b/,'101 (Gavà)'],[/ADAN/,"Ca l'Adan"],[/MINA/,'La Mina'],[/TERRASSA/,'La Terrassa'],[/CASA PACO/,'Casa Paco'],[/RIERA/,'La Riera'],[/TASCA/,'La Tasca'],[/RAMBLA VILADECANS/,'Rambla (Viladecans)'],[/FRI-?TOP/,'Fri-Top'],[/TALLARINAS/,'Tallarinas'],[/CAÑA[ -]TAPA/,'Caña Tapa (Viladecans)'],[/RAC[OÓ] D'EN TITO/,"El Racó d'en Tito"],[/TAPICA/,'La Tapica'],[/MALA SOMBRA/,'Mala Sombra'],[/MARTI[NÑ]AN/,'Martiñán'],[/URUGUAYO/,'Uruguayo'],[/ALMUERZO BARATO/,'Almuerzo barato']];
+  const norm=s=>{const u=(s||'').toUpperCase();if(!u||u.includes('COMPENSADAS'))return '';for(const [r,n] of PL)if(r.test(u))return n;return u.replace(/\s{2,}.*/,'').trim()};
+  const sitios={};paid.forEach(m=>{const k=norm(m.pago.sitio);if(k)sitios[k]=(sitios[k]||0)+1});
+  const top=Object.entries(sitios).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));const mx=top.length?top[0][1]:1;
   const fmt=f=>{if(!f)return '';const [y,mo,d]=f.split('-');return `${+d}/${+mo}/${y.slice(2)}`};
-  const tabs=[['pend','Pendientes',pend.length],['todas','Todas',paid.length],['sitios','Sitios',top.length]];
+  const tabs=[['pend','Pendientes',pend.length],['todas','Todas',paid.length],['sitios','Ranking sitios',top.length]];
   if(!tabs.some(t=>t[0]===cenTab))cenTab='pend';
   let body='';
   if(cenTab==='pend')body=pend.length?`<ul class="list">${pend.map(m=>`<li><span><b>${label(m)} ${m.y}</b></span><span style="text-align:right">${payTxt(m)}</span></li>`).join('')}</ul>`:'<p class="note">No hay cenas pendientes.</p>';
   if(cenTab==='todas')body=`<ul class="list">${paid.map(m=>`<li><span><b>${label(m)} ${m.y}</b><br><span class="meta">${payTxt(m," · ")}</span></span><span style="text-align:right">${cap(m.pago.sitio||'—')}<br><span class="meta">${fmt(m.pago.fecha)}${m.pago.importe?` · ${m.pago.importe} €`:''}</span></span></li>`).join('')}</ul>`;
-  if(cenTab==='sitios')body=top.map(([k,v])=>`<div style="display:grid;grid-template-columns:140px 1fr 28px;gap:10px;align-items:center;margin:9px 0;font-size:15px"><span>${cap(k)}</span><div class="bar" style="width:${v/mx*100}%"></div><b style="text-align:right">${v}</b></div>`).join('');
+  if(cenTab==='sitios'){let pos=0,prev=null;body=`<ol class="rank">${top.map(([k,v],i)=>{if(v!==prev){pos=i+1;prev=v}return `<li><span class="rp ${pos<=3?'m'+pos:''}">${pos}</span><span class="rn">${k}<div class="bar" style="width:${v/mx*100}%"></div></span><b>${v}</b></li>`}).join('')}</ol>`}
   $("#v-cenas").innerHTML=`<div class="subtabs">${tabs.map(([k,t,n])=>`<button class="stab ${k===cenTab?'on':''}" data-ct="${k}">${t}<span>${n}</span></button>`).join('')}</div>
   <div class="card">${body}</div>`;
   document.querySelectorAll('[data-ct]').forEach(x=>x.onclick=()=>{cenTab=x.dataset.ct;renderCenas()});
