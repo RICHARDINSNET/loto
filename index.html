@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794778468">
+<meta name="loto-version" content="1794778606">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -89,6 +89,8 @@ body.sub .brand span{display:none}
 .ticker.t2{background:#fde3d5}
 .ticker.t2 .tk{color:#7a2e0b;animation-duration:13s}
 .ticker.t2 .tk b{background:#eb6834}
+.ticker.t2 .pm{font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.03em}
+.ticker.t2 .pc{font-weight:800}
 @media (prefers-color-scheme:dark){.ticker.t2{background:#3a2218}.ticker.t2 .tk{color:#f6c7ae}}
 @keyframes tk{0%{left:100%;transform:translateX(0)}70%{left:0;transform:translateX(-100%)}100%{left:0;transform:translateX(-100%)}}
 @media (prefers-color-scheme:dark){.ticker{background:#1d2c42}.tk{color:#cfe0f7}}
@@ -584,7 +586,7 @@ function renderInicio(){
     <button class="sq k1" data-go="mes">${ic.mes}<div style="min-width:0"><div class="t">${label(cur)} ${cur.y}</div><div class="ticker"><div class="tk">${tk}</div></div></div></button>
     <button class="sq k2" data-go="clasif">${ic.clasif}<div><div class="t">Clasificación</div><div class="d">Menos cenas pagadas: ${lider.map(i=>P[i]).join(' y ')}</div></div></button>
     <button class="sq k3" data-go="hist">${ic.hist}<div><div class="t">Histórico</div><div class="d">Desde ${MES[meses[0].m-1].toLowerCase()} ${meses[0].y}, año a año</div></div></button>
-    <button class="sq k4" data-go="cenas">${ic.cenas}<div style="min-width:0"><div class="t">Cenas</div>${pend.length?`<div class="ticker t2"><div class="tk">${(()=>{const m=pend[0],sh=shares(m);const who=[0,1,2].filter(i=>sh[i]>1e-9).sort((a,b)=>sh[b]-sh[a]).map(i=>`${P[i]} <b>${frac(sh[i])}</b>`).join('<span class="sep">·</span>');return `<span>Próxima: ${label(m)} ${m.y}</span><span class="sep">·</span>${who}<span class="sep">·</span><span>${pend.length} pendientes</span>`})()}</div></div>`:'<div class="d">Ninguna pendiente</div>'}</div></button>
+    <button class="sq k4" data-go="cenas">${ic.cenas}<div style="min-width:0"><div class="t">Cenas</div>${pend.length?`<div class="ticker t2"><div class="tk" style="animation-duration:${Math.max(13,pend.length*7)}s">${`<span class="pc">${pend.length} pendientes</span>`+pend.map(m=>{const sh=shares(m);return `<span class="pm">${label(m)}${m.y!==cur.y?" "+m.y:""}</span>`+[0,1,2].filter(i=>sh[i]>1e-9).sort((a,b)=>sh[b]-sh[a]).map(i=>`<span>${P[i]} <b>${frac(sh[i])}</b></span>`).join('')}).join('<span class="sep">|</span>')}</div></div>`:'<div class="d">Ninguna pendiente</div>'}</div></button>
     <button class="sq k5" data-go="boleto">${ic.boleto}<div><div class="t">Boleto</div><div class="d">Hacer foto</div></div></button>
   </div>`;
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{location.hash=b.dataset.go});
