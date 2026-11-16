@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Loto Egipto">
 <title>Loto Egipto</title>
-<meta name="loto-version" content="1794783354">
+<meta name="loto-version" content="1794814764">
 <link rel="manifest" href="manifest.json?v=11">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11">
 <link rel="icon" href="icon-192.png?v=11">
@@ -101,6 +101,11 @@ body.sub .brand span{display:none}
 .sq .t{font-size:18px;font-weight:700}
 .sq .d{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.35}
 .sq.k5 svg{color:#6250d6}
+.sq.k6.wide.col{padding-bottom:40px}
+.sq.fotobar{grid-column:1/-1;justify-self:center;width:82%;aspect-ratio:auto;min-height:0;flex-direction:row;justify-content:center;align-items:center;gap:12px;padding:12px 16px;margin-top:-46px;margin-bottom:6px;position:relative;z-index:2;border-radius:16px;
+ background:linear-gradient(180deg,#8b7cf0 0%,#6250d6 55%,#5140c2 100%);border:1px solid #4a3ab3;box-shadow:0 5px 0 #392c94,0 9px 14px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.35);color:#fff;font-weight:800;font-size:17px}
+.sq.fotobar:active{transform:translateY(4px);box-shadow:0 1px 0 #392c94,0 3px 6px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.35)}
+.sq.fotobar svg{width:30px;height:30px;color:#fff;margin:0}
 .sq.wide.col{flex-direction:column;gap:12px;padding:20px 14px 16px}
 .sq.wide.col>div:last-child{text-align:center}
 .dchips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
@@ -590,11 +595,12 @@ function renderInicio(){
     cenas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5a2 2 0 0 0 2 2M9 3v5M17 21V3c-2 1-3 4-3 7h3"/></svg>'};
   $('#v-inicio').innerHTML=`<div class="grid">
     <button class="sq k6 wide col" data-go="semana">${ic.semana}<div><div class="t">Números de la semana</div><div class="d">${(()=>{const b=curBol();return b&&b.apuestas.length?`${b.apuestas.length} apuesta${b.apuestas.length>1?'s':''}`:'Sin números aún'})()}</div></div></button>
+    <button class="sq k5 fotobar" data-go="boleto">${ic.boleto}<span>Hacer foto del boleto</span></button>
     <button class="sq k1" data-go="mes">${ic.mes}<div style="min-width:0"><div class="t">${label(cur)} ${cur.y}</div><div class="ticker"><div class="tk">${tk}</div></div></div></button>
     <button class="sq k2" data-go="clasif">${ic.clasif}<div><div class="t">Clasificación</div><div class="d">Menos cenas pagadas: ${lider.map(i=>P[i]).join(' y ')}</div></div></button>
     <button class="sq k3" data-go="hist">${ic.hist}<div><div class="t">Histórico</div><div class="d">Desde ${MES[meses[0].m-1].toLowerCase()} ${meses[0].y}, año a año</div></div></button>
-    <button class="sq k4" data-go="cenas">${ic.cenas}<div style="min-width:0"><div class="t">Cenas</div>${pend.length?`<div class="ticker t2"><div class="tk" style="animation-duration:${Math.max(13,pend.length*7)}s">${`<span class="pc">${pend.length} pendientes</span>`+pend.map(m=>{const sh=shares(m);return `<span class="pm">${label(m)}${m.y!==cur.y?" "+m.y:""}</span>`+[0,1,2].filter(i=>sh[i]>1e-9).sort((a,b)=>sh[b]-sh[a]).map(i=>`<span>${P[i]} <b>${frac(sh[i])}</b></span>`).join('')}).join('<span class="sep">|</span>')}</div></div>`:'<div class="d">Ninguna pendiente</div>'}</div></button>
-    <button class="sq k5" data-go="boleto">${ic.boleto}<div><div class="t">Boleto</div><div class="d">Hacer foto</div></div></button>
+    <button class="sq k4" data-go="cenas">${ic.cenas}<div style="min-width:0"><div class="t">Cenas</div>${pend.length?`<div class="ticker t2"><div class="tk">${(()=>{const m=pend[0],sh=shares(m);return `<span class="pc">Próxima:</span><span class="pm">${label(m)}${m.y!==cur.y?" "+m.y:""}</span>`+[0,1,2].filter(i=>sh[i]>1e-9).sort((a,b)=>sh[b]-sh[a]).map(i=>`<span>${P[i]} <b>${frac(sh[i])}</b></span>`).join('')})()}</div></div>`:'<div class="d">Ninguna pendiente</div>'}</div></button>
+
   </div>`;
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{location.hash=b.dataset.go});
 }
